@@ -1,7 +1,7 @@
 BasicInfo:
-  Title                   : "Flappy Pixel"
+  Title                   : "Flappy3DS"
   CompanyCode             : "00"
-  ProductCode             : "CTR-P-FLPP"
+  ProductCode             : "CTR-FLAPPY"
   ContentType             : Application
   Logo                    : Nintendo # Nintendo / Licensed / Distributed / iQue / iQueForSystem
 
