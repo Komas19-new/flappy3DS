@@ -16,7 +16,7 @@
 #define DEFvelDivider 3
 #define DEFvelChange 1
 #define DEFspeed 2
-#define ver "Beta 0.0.2"
+#define ver "Beta 0.0.3"
 
 struct pipe {
 	s16 posX;
@@ -108,7 +108,7 @@ void resetGame() {
 }
 
 void loadHighScore() {
-	FILE *file = fopen("flappypixel.bin", "rb");
+	FILE *file = fopen("flappy.bin", "rb");
 	if (file == NULL) {
 		highscore = 0;
 		return;
@@ -118,7 +118,7 @@ void loadHighScore() {
 }
 
 void saveHighScore() {
-	FILE *file = fopen("flappypixel.bin", "w+b");
+	FILE *file = fopen("flappy.bin", "w+b");
 	if (file == NULL) {
 		return;
 	}
@@ -474,10 +474,11 @@ int main() {
 					printf("\033[6;10fYou broke the game!");
 					printf("\033[7;7fHighscore won't be saved.");
 				} else
-					printf("\033[8;13fFlappy Pixel");
+					printf("\033[8;13f  Flappy3DS");
 			} else if (gState == RUNNING) {
 				printf("\033[8;16fScore");
 				printf("\033[10;18f%d", score);
+				printf("\033[0;0fFlappy3DS %s", ver);
 			} else if (gState == GAMEOVER) {
 				printf("\033[6;14fGAME OVER");
 				printf("\033[9;16fScore");
