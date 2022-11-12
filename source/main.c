@@ -18,7 +18,7 @@
 #define DEFvelDivider 3
 #define DEFvelChange 1
 #define DEFspeed 2
-#define ver "Beta 0.0.6"
+#define ver "Beta 0.1"
 
 struct pipe {
 	s16 posX;
@@ -104,9 +104,8 @@ void resetGame() {
 	while (i < pipeCount) {
 		pipes[i].posX = 401 + i * (spaceHorizontal + pipeWidth);
 		i++;
-
 		if (score == 60000) {
-			gState = GAMEOVER
+			gState = GAMEOVER;
 		}
 	}
 	printed = 0;
@@ -212,6 +211,9 @@ int main() {
 				if (pipes[i].posX <= scoreSpot && oldPos > scoreSpot) {
 					score++;
 					printed = 0;
+					if (score == 60000) {
+						gState = GAMEOVER;
+					}	
 				}
 
 				//detect collision
