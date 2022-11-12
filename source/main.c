@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
 
 #ifndef NULL
 #define NULL   ((void *) 0) //to get rid of Eclipse's NULL errors
@@ -109,11 +110,10 @@ void resetGame() {
 }
 
 void loadHighScore() {
-	int check;
-	char* dirname = "Flappy";
-	check = mkdir(dirname,0777);
 
-	FILE *file = fopen("Flappy/flappy.bin", "rb");
+	mkdir("/Flappy3DS", 0777);
+
+	FILE *file = fopen("flappy/highscore.bin", "rb");
 	if (file == NULL) {
 		highscore = 0;
 		return;
@@ -124,12 +124,9 @@ void loadHighScore() {
 
 void saveHighScore() {
 
-	int check;
-	char* dirname = "Flappy";
+	mkdir("/Flappy3DS", 0777);
 
-	check = mkdir(dirname,0777);
-
-	FILE *file = fopen("Flappy/flappy.bin", "w+b");
+	FILE *file = fopen("flappy/highscore.bin", "rb");
 	if (file == NULL) {
 		return;
 	}
