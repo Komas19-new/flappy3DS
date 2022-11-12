@@ -18,7 +18,7 @@
 #define DEFvelDivider 3
 #define DEFvelChange 1
 #define DEFspeed 2
-#define ver "Beta 0.0.5"
+#define ver "Beta 0.0.6"
 
 struct pipe {
 	s16 posX;
@@ -104,6 +104,10 @@ void resetGame() {
 	while (i < pipeCount) {
 		pipes[i].posX = 401 + i * (spaceHorizontal + pipeWidth);
 		i++;
+
+		if (score == 60000) {
+			gState = GAMEOVER
+		}
 	}
 	printed = 0;
 	scoreSpot = flappyX + flappyPixelSize / 2 - pipeWidth / 2;
