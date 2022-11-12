@@ -106,6 +106,11 @@ void resetGame() {
 		i++;
 		if (score == 60000) {
 			gState = GAMEOVER;
+			if (score > highscore && isDefaultSettings == 1) {
+				isHighscored = 1;
+				highscore = score;
+				saveHighScore();
+			}
 		}
 	}
 	printed = 0;
@@ -180,6 +185,11 @@ int main() {
 			//			vel = -18;
 			if (kDown & KEY_SELECT) {
 				gState = GAMEOVER;
+				if (score > highscore && isDefaultSettings == 1) {
+					isHighscored = 1;
+					highscore = score;
+					saveHighScore();
+				}
 			}
 			if (altitude < floorHeight + flappyPixelSize) {
 				vel = 12;
@@ -215,6 +225,11 @@ int main() {
 					printed = 0;
 					if (score == 60000) {
 						gState = GAMEOVER;
+						if (score > highscore && isDefaultSettings == 1) {
+							isHighscored = 1;
+							highscore = score;
+							saveHighScore();
+						}
 					}	
 				}
 
