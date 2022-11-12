@@ -55,7 +55,7 @@ LIBS	:= -lctru -lm
 # include and lib
 #---------------------------------------------------------------------------------
 LIBDIRS	:= $(CTRULIB)
-
+LOGO			:=	$(TOPDIR)/$(META)/logo.lz11
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
