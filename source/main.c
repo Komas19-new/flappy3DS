@@ -16,7 +16,7 @@
 #define DEFvelDivider 3
 #define DEFvelChange 1
 #define DEFspeed 2
-#define ver "Beta 0.0.3"
+#define ver "Beta 0.0.4"
 
 struct pipe {
 	s16 posX;
