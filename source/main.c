@@ -1,6 +1,7 @@
 #include <3ds.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #ifndef NULL
 #define NULL   ((void *) 0) //to get rid of Eclipse's NULL errors
@@ -16,7 +17,7 @@
 #define DEFvelDivider 3
 #define DEFvelChange 1
 #define DEFspeed 2
-#define ver "Beta 0.0.4.1"
+#define ver "Beta 0.0.5"
 
 struct pipe {
 	s16 posX;
@@ -108,7 +109,11 @@ void resetGame() {
 }
 
 void loadHighScore() {
-	FILE *file = fopen("flappy.bin", "rb");
+	int check;
+	char* dirname = "Flappy";
+	check = mkdir(dirname,0777);
+
+	FILE *file = fopen("Flappy/flappy.bin", "rb");
 	if (file == NULL) {
 		highscore = 0;
 		return;
@@ -118,7 +123,13 @@ void loadHighScore() {
 }
 
 void saveHighScore() {
-	FILE *file = fopen("flappy.bin", "w+b");
+
+	int check;
+	char* dirname = "Flappy";
+
+	check = mkdir(dirname,0777);
+
+	FILE *file = fopen("Flappy/flappy.bin", "w+b");
 	if (file == NULL) {
 		return;
 	}
