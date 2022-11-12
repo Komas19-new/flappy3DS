@@ -18,7 +18,7 @@
 #define DEFvelDivider 3
 #define DEFvelChange 1
 #define DEFspeed 2
-#define ver "Beta 0.1"
+#define ver "Beta 0.1.1"
 
 struct pipe {
 	s16 posX;
@@ -178,7 +178,9 @@ int main() {
 			vel -= velChange;
 			//		if (vel <= -18)
 			//			vel = -18;
-
+			if (kDown & KEY_SELECT) {
+				gState = GAMEOVER;
+			}
 			if (altitude < floorHeight + flappyPixelSize) {
 				vel = 12;
 				altitude = floorHeight + flappyPixelSize;
