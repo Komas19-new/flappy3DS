@@ -113,7 +113,7 @@ void loadHighScore() {
 
 	mkdir("/Flappy3DS", 0777);
 
-	FILE *file = fopen("flappy/highscore.bin", "rb");
+	FILE *file = fopen("flappy3DS/highscore.bin", "rb");
 	if (file == NULL) {
 		highscore = 0;
 		return;
@@ -126,7 +126,7 @@ void saveHighScore() {
 
 	mkdir("/Flappy3DS", 0777);
 
-	FILE *file = fopen("flappy/highscore.bin", "rb");
+	FILE *file = fopen("flappy3DS/highscore.bin", "rb");
 	if (file == NULL) {
 		return;
 	}
