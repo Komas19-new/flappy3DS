@@ -18,7 +18,7 @@
 #define DEFvelDivider 3
 #define DEFvelChange 1
 #define DEFspeed 2
-#define ver "Beta 0.1.2"
+#define ver "Beta 0.1.5"
 
 struct pipe {
 	s16 posX;
@@ -36,6 +36,7 @@ s16 vel;
 u8 altitude;
 u16 score;
 u16 highscore;
+u16 deaths;
 s16 oldPos;
 s16 scoreSpot;
 u8 isHighscored;
@@ -100,6 +101,7 @@ void resetGame() {
 	gState = RUNNING;
 	isHighscored = 0;
 	i = 0;
+	deaths = 0;
 	counter = 0;
 	while (i < pipeCount) {
 		pipes[i].posX = 401 + i * (spaceHorizontal + pipeWidth);
@@ -111,6 +113,8 @@ void resetGame() {
 				highscore = score;
 				saveHighScore();
 			}
+			deaths + 1;
+			saveDeaths();
 		}
 	}
 	printed = 0;
@@ -129,6 +133,32 @@ void loadHighScore() {
 	fread(&highscore, 1, 2, file);
 	fclose(file);
 }
+
+void loadDeaths() {
+
+	mkdir("/Flappy3DS", 0777);
+
+	FILE *file = fopen("flappy3DS/deaths.bin", "rb");
+	if (file == NULL) {
+		deaths = 0;
+		return;
+	}
+	fread(&deaths, 1, 2, file);
+	fclose(file);
+}
+
+void saveDeaths() {
+
+	mkdir("/Flappy3DS", 0777);
+
+	FILE *file = fopen("flappy3DS/deaths.bin", "rb");
+	if (file == NULL) {
+		return;
+	}
+	fwrite(&deaths, 2, 1, file);
+	fclose(file);
+}
+
 
 void saveHighScore() {
 
@@ -157,6 +187,7 @@ int main() {
 	resetOptions();
 	resetGame();
 	loadHighScore();
+	loadDeaths();
 	gState = MAIN;
 
 	// Main loop
@@ -190,6 +221,8 @@ int main() {
 					highscore = score;
 					saveHighScore();
 				}
+				deaths + 1;
+				saveDeaths();
 			}
 			if (altitude < floorHeight + flappyPixelSize) {
 				vel = 12;
@@ -230,6 +263,8 @@ int main() {
 							highscore = score;
 							saveHighScore();
 						}
+						deaths + 1;
+						saveDeaths();
 					}	
 				}
 
@@ -249,6 +284,8 @@ int main() {
 							highscore = score;
 							saveHighScore();
 						}
+						deaths + 1;
+						saveDeaths();
 					}
 				}
 				i++;
@@ -521,7 +558,8 @@ int main() {
 				} else
 					printf("\033[15;12fNEW HIGHSCORE!");
 				printf("\033[19;4fPress Y or tap here to restart");
-				printf("\033[21;10fPress START to exit");
+				printf("\033[21;10fDeaths %d", deaths);
+				printf("\033[23;10fPress START to exit");
 			} else if (gState == OPTIONS) {
 				printf("\033[1;1fA: Confirm   X: Default");
 				printf("\033[2;1fB: Exit with default settings");
