@@ -14,4 +14,4 @@ You can use "flappy.3dsx" by going to the homebrew launcher in your 3DS, then Y,
 
 Or, in FBI homebrew app, go to "Remote Install" then Scan QR Code, and scan the image below, it will be updated to the latest release, even pre-releases.
 
-![QR Code](https://raw.githubusercontent.com/Komas19-new/flappy3DS/main/QRCODE.png)
+![QR Code](https://raw.githubusercontent.com/Komas19-new/flappy3DS/dev/QRCODE.png)
