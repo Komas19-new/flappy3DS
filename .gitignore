@@ -1,0 +1,6 @@
+build
+*.3dsx
+*.cia
+*.elf
+*.DS_Store
+*Thumbs.db
