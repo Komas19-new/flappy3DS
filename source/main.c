@@ -18,7 +18,11 @@
 #define DEFvelDivider 3
 #define DEFvelChange 1
 #define DEFspeed 2
+<<<<<<< Updated upstream
 #define ver "Beta 0.1.5.5"
+=======
+#define ver "Main Branch - Beta 0.1.6"
+>>>>>>> Stashed changes
 
 struct pipe {
 	s16 posX;
@@ -26,7 +30,7 @@ struct pipe {
 } pipes[DEFpipeCount];
 
 enum gameState {
-	RUNNING, GAMEOVER, MAIN, OPTIONS
+	RUNNING, GAMEOVER, MAIN, OPTIONS, COLLISIONOFF
 } gState;
 
 s32 i;
@@ -202,6 +206,238 @@ int main() {
 		u32 kDown = hidKeysDown();
 		if (kDown & KEY_START)
 			break;
+
+		if (gState == COLLISIONOFF) {
+						if (kDown & KEY_A || kDown & KEY_B || kDown & KEY_Y || kDown & KEY_X
+					|| kDown & KEY_L || kDown & KEY_R || kDown & KEY_ZL
+					|| kDown & KEY_ZR || kDown & KEY_TOUCH || kDown & KEY_UP
+					|| kDown & KEY_CPAD_UP || kDown & KEY_CSTICK_UP)
+				vel = power;
+			speed = 100;
+			altitude += vel / velDivider;
+			vel -= velChange;
+			//		if (vel <= -18)
+			//			vel = -18;
+			if (kDown & KEY_SELECT) {
+				gState = GAMEOVER;
+				if (score > highscore && isDefaultSettings == 1) {
+					isHighscored = 1;
+					highscore = score;
+					saveHighScore();
+				}
+				deaths + 1;
+				saveDeaths();
+				printed = 0;
+			}
+			if (altitude < floorHeight + flappyPixelSize) {
+				vel = 12;
+				altitude = floorHeight + flappyPixelSize;
+			}
+			if (altitude > 239) {
+				vel = 0;
+				altitude = 239;
+			}
+			i = 0;
+			while (i < pipeCount) {
+				oldPos = pipes[i].posX;
+				pipes[i].posX -= speed;
+				if (pipes[i].posX + pipeWidth < 1) { //a pipe is far left on the screen, so move it next to most far right pipe
+					s8 before = i - 1;
+					if (before <= -1)
+						before = pipeCount - 1;
+					pipes[i].posX = pipes[before].posX + spaceHorizontal
+							+ pipeWidth;
+					if(isDefaultSettings==0){
+						srand(osGetTime());
+						pipes[i].height = rand()
+								% (240 - floorHeight - pipeSpace - 40) + 20;
+					}
+				}
+				if (pipes[i].posX <= 400 && oldPos > 400) { //randomize pipe height when it arrives to far right of the screen
+					srand(osGetTime());
+					pipes[i].height = rand()
+							% (240 - floorHeight - pipeSpace - 40) + 20;
+				}
+				if (pipes[i].posX <= scoreSpot && oldPos > scoreSpot) {
+					score++;
+					printed = 0;
+					if (score == 60000) {
+						gState = GAMEOVER;
+						if (score > highscore && isDefaultSettings == 1) {
+							isHighscored = 1;
+							highscore = score;
+							saveHighScore();
+						}
+						deaths + 1;
+						saveDeaths();
+					}	
+				}
+			}
+		} 
+		else if (gState == GAMEOVER) {
+			if (kDown & KEY_Y)
+				resetGame();
+			else if (kDown & KEY_TOUCH && touchControl(30, 145, 275, 163))
+				resetGame();
+		} else if (gState == MAIN) {
+			if (kDown & KEY_A)
+				resetGame();
+		} else if (gState == OPTIONS) {
+			if (kDown & KEY_A) {
+				printed = 0;
+				gState = MAIN;
+			} else if (kDown & KEY_B) {
+				printed = 0;
+				isDefaultSettings = 1;
+				resetOptions();
+				gState = MAIN;
+			} else if (kDown & KEY_X) {
+				isDefaultSettings = 1;
+				resetOptions();
+				printed = 0;
+			}
+			if (kDown & KEY_TOUCH)
+				counter = 0;
+			if (tPos.px >= 120 && tPos.px <= 145) {
+				if (tPos.py > 36 && tPos.py <= 52) {
+					if (counter == 0) {
+						flappyPixelSize--;
+						isDefaultSettings = 0;
+					}
+					counter++;
+				} else if (tPos.py <= 68) {
+					if (counter == 0) {
+						pipeWidth--;
+						isDefaultSettings = 0;
+					}
+					counter++;
+				} else if (tPos.py <= 84) {
+					if (counter == 0) {
+						spaceHorizontal--;
+						isDefaultSettings = 0;
+					}
+					counter++;
+				} else if (tPos.py <= 100) {
+					if (counter == 0) {
+						pipeSpace--;
+						isDefaultSettings = 0;
+					}
+					counter++;
+				} else if (tPos.py <= 116) {
+					if (counter == 0 && floorHeight>5) {
+						floorHeight--;
+						isDefaultSettings = 0;
+					}
+					counter++;
+				} else if (tPos.py <= 132) {
+					if (counter == 0) {
+						power--;
+						isDefaultSettings = 0;
+					}
+					counter++;
+				} else if (tPos.py <= 148) {
+					if (counter == 0) {
+						velDivider--;
+						isDefaultSettings = 0;
+					}
+					counter++;
+				} else if (tPos.py <= 164) {
+					if (counter == 0) {
+						velChange--;
+						isDefaultSettings = 0;
+					}
+					counter++;
+				} else if (tPos.py <= 180) {
+					if (counter == 0 && speed>1) {
+						speed--;
+						isDefaultSettings = 0;
+					}
+					counter++;
+				} else if (tPos.py <= 196) {
+					if (flappyX > 1) {
+						flappyX--;
+						isDefaultSettings = 0;
+					}
+					counter++;
+				}
+				printed = 0;
+			}
+			if (tPos.px >= 168 && tPos.px <= 193) {
+				if (tPos.py > 36 && tPos.py <= 52) {
+					if (counter == 0) {
+						flappyPixelSize++;
+						isDefaultSettings = 0;
+					}
+					counter++;
+				} else if (tPos.py <= 68) {
+					if (counter == 0) {
+						pipeWidth++;
+						isDefaultSettings = 0;
+					}
+					counter++;
+				} else if (tPos.py <= 84) {
+					if (counter == 0) {
+						spaceHorizontal++;
+						isDefaultSettings = 0;
+					}
+					counter++;
+				} else if (tPos.py <= 100) {
+					if (counter == 0) {
+						pipeSpace++;
+						isDefaultSettings = 0;
+					}
+					counter++;
+				} else if (tPos.py <= 116) {
+					if (counter == 0 && floorHeight<237) {
+						floorHeight++;
+						isDefaultSettings = 0;
+					}
+					counter++;
+				} else if (tPos.py <= 132) {
+					if (counter == 0) {
+						power++;
+						isDefaultSettings = 0;
+					}
+					counter++;
+				} else if (tPos.py <= 148) {
+					if (counter == 0) {
+						velDivider++;
+						isDefaultSettings = 0;
+					}
+					counter++;
+				} else if (tPos.py <= 164) {
+					if (counter == 0) {
+						velChange++;
+						isDefaultSettings = 0;
+					}
+					counter++;
+				} else if (tPos.py <= 180) {
+					if (counter == 0) {
+						speed++;
+						isDefaultSettings = 0;
+					}
+					counter++;
+				} else if (tPos.py <= 196) {
+					if (flappyX < 400) {
+						flappyX++;
+						isDefaultSettings = 0;
+					}
+					counter++;
+				}
+				printed = 0;
+			}
+			if (counter >= 6)
+				counter = 0;
+			altitude = 120 + flappyPixelSize / 2;
+			srand(1337);
+			i = 0;
+			while (i < pipeCount) {
+				pipes[i].posX = 20 + i * (spaceHorizontal + pipeWidth);
+				pipes[i].height = (rand() + i * 1337)
+						% (240 - floorHeight - pipeSpace - 40) + 20;
+				i++;
+			}
+		}
 
 		if (gState == RUNNING) {
 			if (kDown & KEY_A || kDown & KEY_B || kDown & KEY_Y || kDown & KEY_X
@@ -537,6 +773,7 @@ int main() {
 				printf("\033[17;15fHighscore");
 				printf("\033[19;18f%d", highscore);
 				printf("\033[0;0fVer. %s", ver);
+				printf("\033[25;2fTap here to for no collision and speed.");
 				printf("\033[28;6fTap here to break the game");
 				if (isDefaultSettings == 0) {
 					printf("\033[6;10fYou broke the game!");
@@ -551,6 +788,7 @@ int main() {
 				printf("\033[6;14fGAME OVER");
 				printf("\033[9;16fScore");
 				printf("\033[11;18f%d", score);
+				printf("\033[25;2fTap here to for no collision and speed.");
 				printf("\033[28;6fTap here to break the game");
 				if (isHighscored == 0) {
 					printf("\033[14;14fHighscore");
