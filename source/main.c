@@ -13,16 +13,13 @@
 #define DEFspaceHorizontal 65
 #define DEFpipeSpace 70
 #define DEFpipeWidth 35
-#define DEFflappyPixelSize 13
+#define DEFflappyPixelSize 10
 #define DEFpower 17
-#define DEFvelDivider 3
+#define DEFvelDivider 4
 #define DEFvelChange 1
 #define DEFspeed 2
-<<<<<<< Updated upstream
-#define ver "Beta 0.1.5.5"
-=======
-#define ver "Main Branch - Beta 0.1.6"
->>>>>>> Stashed changes
+#define hideBreakingGame false
+#define ver "Main Branch - Beta 0.1.7"
 
 struct pipe {
 	s16 posX;
@@ -30,7 +27,7 @@ struct pipe {
 } pipes[DEFpipeCount];
 
 enum gameState {
-	RUNNING, GAMEOVER, MAIN, OPTIONS, COLLISIONOFF
+	RUNNING, GAMEOVER, MAIN, OPTIONS, COLLISIONOFF, AI_MOVEMENT
 } gState;
 
 s32 i;
@@ -62,7 +59,22 @@ u8 counter;
 void clrScreen(u8 *fb) {
 	memset(fb, 0, 240 * 400 * 3);
 }
-
+/*
+void moveFlappyAI() {
+    // Simple AI movement logic to avoid pipes
+    if (pipes[0].posX > flappyX + flappyPixelSize) {
+        flappyX++;
+    } else if (pipes[0].posX + pipeWidth < flappyX) {
+        flappyX--;
+    }
+    // Ensure flappyX stays within the screen bounds
+    if (flappyX < 0) {
+        flappyX = 0;
+    } else if (flappyX + flappyPixelSize >= 240) {
+        flappyX = 240 - flappyPixelSize - 1;
+    }
+}
+*/
 void setPixel(u8 *fb, u16 x, u8 y, u8 red, u8 green, u8 blue) {
 	fb[3 * (240 - y + (x - 1) * 240)] = blue;
 	fb[3 * (240 - y + (x - 1) * 240) + 1] = green;
@@ -105,7 +117,6 @@ void resetGame() {
 	gState = RUNNING;
 	isHighscored = 0;
 	i = 0;
-	deaths = 0;
 	counter = 0;
 	while (i < pipeCount) {
 		pipes[i].posX = 401 + i * (spaceHorizontal + pipeWidth);
@@ -117,7 +128,7 @@ void resetGame() {
 				highscore = score;
 				saveHighScore();
 			}
-			deaths + 1;
+			deaths = deaths + 1;
 			saveDeaths();
 		}
 	}
@@ -155,7 +166,7 @@ void saveDeaths() {
 
 	mkdir("/Flappy3DS", 0777);
 
-	FILE *file = fopen("flappy3DS/deaths.bin", "rb");
+	FILE *file = fopen("flappy3DS/deaths.bin", "wb");
 	if (file == NULL) {
 		return;
 	}
@@ -168,7 +179,7 @@ void saveHighScore() {
 
 	mkdir("/Flappy3DS", 0777);
 
-	FILE *file = fopen("flappy3DS/highscore.bin", "rb");
+	FILE *file = fopen("flappy3DS/highscore.bin", "wb");
 	if (file == NULL) {
 		return;
 	}
@@ -225,7 +236,7 @@ int main() {
 					highscore = score;
 					saveHighScore();
 				}
-				deaths + 1;
+				deaths = deaths + 1;
 				saveDeaths();
 				printed = 0;
 			}
@@ -268,7 +279,7 @@ int main() {
 							highscore = score;
 							saveHighScore();
 						}
-						deaths + 1;
+						deaths = deaths + 1;
 						saveDeaths();
 					}	
 				}
@@ -279,163 +290,171 @@ int main() {
 				resetGame();
 			else if (kDown & KEY_TOUCH && touchControl(30, 145, 275, 163))
 				resetGame();
+			if (kDown & KEY_L)
+				gState = AI_MOVEMENT;
 		} else if (gState == MAIN) {
 			if (kDown & KEY_A)
 				resetGame();
+			if (kDown & KEY_L)
+				gState = AI_MOVEMENT;
+		} else if (gState == AI_MOVEMENT) {
+			// moveFlappyAI();
 		} else if (gState == OPTIONS) {
-			if (kDown & KEY_A) {
-				printed = 0;
-				gState = MAIN;
-			} else if (kDown & KEY_B) {
-				printed = 0;
-				isDefaultSettings = 1;
-				resetOptions();
-				gState = MAIN;
-			} else if (kDown & KEY_X) {
-				isDefaultSettings = 1;
-				resetOptions();
-				printed = 0;
-			}
-			if (kDown & KEY_TOUCH)
-				counter = 0;
-			if (tPos.px >= 120 && tPos.px <= 145) {
-				if (tPos.py > 36 && tPos.py <= 52) {
-					if (counter == 0) {
-						flappyPixelSize--;
-						isDefaultSettings = 0;
-					}
-					counter++;
-				} else if (tPos.py <= 68) {
-					if (counter == 0) {
-						pipeWidth--;
-						isDefaultSettings = 0;
-					}
-					counter++;
-				} else if (tPos.py <= 84) {
-					if (counter == 0) {
-						spaceHorizontal--;
-						isDefaultSettings = 0;
-					}
-					counter++;
-				} else if (tPos.py <= 100) {
-					if (counter == 0) {
-						pipeSpace--;
-						isDefaultSettings = 0;
-					}
-					counter++;
-				} else if (tPos.py <= 116) {
-					if (counter == 0 && floorHeight>5) {
-						floorHeight--;
-						isDefaultSettings = 0;
-					}
-					counter++;
-				} else if (tPos.py <= 132) {
-					if (counter == 0) {
-						power--;
-						isDefaultSettings = 0;
-					}
-					counter++;
-				} else if (tPos.py <= 148) {
-					if (counter == 0) {
-						velDivider--;
-						isDefaultSettings = 0;
-					}
-					counter++;
-				} else if (tPos.py <= 164) {
-					if (counter == 0) {
-						velChange--;
-						isDefaultSettings = 0;
-					}
-					counter++;
-				} else if (tPos.py <= 180) {
-					if (counter == 0 && speed>1) {
-						speed--;
-						isDefaultSettings = 0;
-					}
-					counter++;
-				} else if (tPos.py <= 196) {
-					if (flappyX > 1) {
-						flappyX--;
-						isDefaultSettings = 0;
-					}
-					counter++;
+			if (hideBreakingGame == false) {
+				if (kDown & KEY_A) {
+					printed = 0;
+					gState = MAIN;
+				} else if (kDown & KEY_B) {
+					printed = 0;
+					isDefaultSettings = 1;
+					resetOptions();
+					gState = MAIN;
+				} else if (kDown & KEY_X) {
+					isDefaultSettings = 1;
+					resetOptions();
+					printed = 0;
 				}
-				printed = 0;
-			}
-			if (tPos.px >= 168 && tPos.px <= 193) {
-				if (tPos.py > 36 && tPos.py <= 52) {
-					if (counter == 0) {
-						flappyPixelSize++;
-						isDefaultSettings = 0;
+				if (kDown & KEY_TOUCH)
+					counter = 0;
+				if (tPos.px >= 120 && tPos.px <= 145) {
+					if (tPos.py > 36 && tPos.py <= 52) {
+						if (counter == 0) {
+							flappyPixelSize--;
+							isDefaultSettings = 0;
+						}
+						counter++;
+					} else if (tPos.py <= 68) {
+						if (counter == 0) {
+							pipeWidth--;
+							isDefaultSettings = 0;
+						}
+						counter++;
+					} else if (tPos.py <= 84) {
+						if (counter == 0) {
+							spaceHorizontal--;
+							isDefaultSettings = 0;
+						}
+						counter++;
+					} else if (tPos.py <= 100) {
+						if (counter == 0) {
+							pipeSpace--;
+							isDefaultSettings = 0;
+						}
+						counter++;
+					} else if (tPos.py <= 116) {
+						if (counter == 0 && floorHeight>5) {
+							floorHeight--;
+							isDefaultSettings = 0;
+						}
+						counter++;
+					} else if (tPos.py <= 132) {
+						if (counter == 0) {
+							power--;
+							isDefaultSettings = 0;
+						}
+						counter++;
+					} else if (tPos.py <= 148) {
+						if (counter == 0) {
+							velDivider--;
+							isDefaultSettings = 0;
+						}
+						counter++;
+					} else if (tPos.py <= 164) {
+						if (counter == 0) {
+							velChange--;
+							isDefaultSettings = 0;
+						}
+						counter++;
+					} else if (tPos.py <= 180) {
+						if (counter == 0 && speed>1) {
+							speed--;
+							isDefaultSettings = 0;
+						}
+						counter++;
+					} else if (tPos.py <= 196) {
+						if (flappyX > 1) {
+							flappyX--;
+							isDefaultSettings = 0;
+						}
+						counter++;
 					}
-					counter++;
-				} else if (tPos.py <= 68) {
-					if (counter == 0) {
-						pipeWidth++;
-						isDefaultSettings = 0;
-					}
-					counter++;
-				} else if (tPos.py <= 84) {
-					if (counter == 0) {
-						spaceHorizontal++;
-						isDefaultSettings = 0;
-					}
-					counter++;
-				} else if (tPos.py <= 100) {
-					if (counter == 0) {
-						pipeSpace++;
-						isDefaultSettings = 0;
-					}
-					counter++;
-				} else if (tPos.py <= 116) {
-					if (counter == 0 && floorHeight<237) {
-						floorHeight++;
-						isDefaultSettings = 0;
-					}
-					counter++;
-				} else if (tPos.py <= 132) {
-					if (counter == 0) {
-						power++;
-						isDefaultSettings = 0;
-					}
-					counter++;
-				} else if (tPos.py <= 148) {
-					if (counter == 0) {
-						velDivider++;
-						isDefaultSettings = 0;
-					}
-					counter++;
-				} else if (tPos.py <= 164) {
-					if (counter == 0) {
-						velChange++;
-						isDefaultSettings = 0;
-					}
-					counter++;
-				} else if (tPos.py <= 180) {
-					if (counter == 0) {
-						speed++;
-						isDefaultSettings = 0;
-					}
-					counter++;
-				} else if (tPos.py <= 196) {
-					if (flappyX < 400) {
-						flappyX++;
-						isDefaultSettings = 0;
-					}
-					counter++;
+					printed = 0;
 				}
-				printed = 0;
-			}
-			if (counter >= 6)
-				counter = 0;
-			altitude = 120 + flappyPixelSize / 2;
-			srand(1337);
-			i = 0;
-			while (i < pipeCount) {
-				pipes[i].posX = 20 + i * (spaceHorizontal + pipeWidth);
-				pipes[i].height = (rand() + i * 1337)
-						% (240 - floorHeight - pipeSpace - 40) + 20;
-				i++;
+				if (tPos.px >= 168 && tPos.px <= 193) {
+					if (tPos.py > 36 && tPos.py <= 52) {
+						if (counter == 0) {
+							flappyPixelSize++;
+							isDefaultSettings = 0;
+						}
+						counter++;
+					} else if (tPos.py <= 68) {
+						if (counter == 0) {
+							pipeWidth++;
+							isDefaultSettings = 0;
+						}
+						counter++;
+					} else if (tPos.py <= 84) {
+						if (counter == 0) {
+							spaceHorizontal++;
+							isDefaultSettings = 0;
+						}
+						counter++;
+					} else if (tPos.py <= 100) {
+						if (counter == 0) {
+							pipeSpace++;
+							isDefaultSettings = 0;
+						}
+						counter++;
+					} else if (tPos.py <= 116) {
+						if (counter == 0 && floorHeight<237) {
+							floorHeight++;
+							isDefaultSettings = 0;
+						}
+						counter++;
+					} else if (tPos.py <= 132) {
+						if (counter == 0) {
+							power++;
+							isDefaultSettings = 0;
+						}
+						counter++;
+					} else if (tPos.py <= 148) {
+						if (counter == 0) {
+							velDivider++;
+							isDefaultSettings = 0;
+						}
+						counter++;
+					} else if (tPos.py <= 164) {
+						if (counter == 0) {
+							velChange++;
+							isDefaultSettings = 0;
+						}
+						counter++;
+					} else if (tPos.py <= 180) {
+						if (counter == 0) {
+							speed++;
+							isDefaultSettings = 0;
+						}
+						counter++;
+					} else if (tPos.py <= 196) {
+						if (flappyX < 400) {
+							flappyX++;
+							isDefaultSettings = 0;
+						}
+						counter++;
+					}
+					printed = 0;
+				}
+				if (counter >= 6)
+					counter = 0;
+				altitude = 120 + flappyPixelSize / 2;
+				srand(1337);
+				i = 0;
+				while (i < pipeCount) {
+					pipes[i].posX = 20 + i * (spaceHorizontal + pipeWidth);
+					pipes[i].height = (rand() + i * 1337)
+							% (240 - floorHeight - pipeSpace - 40) + 20;
+					i++;
+				}
 			}
 		}
 
@@ -457,7 +476,7 @@ int main() {
 					highscore = score;
 					saveHighScore();
 				}
-				deaths + 1;
+				deaths = deaths + 1;
 				saveDeaths();
 			}
 			if (altitude < floorHeight + flappyPixelSize) {
@@ -499,7 +518,7 @@ int main() {
 							highscore = score;
 							saveHighScore();
 						}
-						deaths + 1;
+						deaths = deaths + 1;
 						saveDeaths();
 					}	
 				}
@@ -520,7 +539,7 @@ int main() {
 							highscore = score;
 							saveHighScore();
 						}
-						deaths + 1;
+						deaths = deaths + 1;
 						saveDeaths();
 					}
 				}
@@ -534,6 +553,8 @@ int main() {
 		} else if (gState == MAIN) {
 			if (kDown & KEY_A)
 				resetGame();
+		} else if (gState == AI_MOVEMENT) {
+			// moveFlappyAI();
 		} else if (gState == OPTIONS) {
 			if (kDown & KEY_A) {
 				printed = 0;
@@ -768,13 +789,18 @@ int main() {
 		if (printed == 0) {
 			printf("\033[2J");
 			if (gState == MAIN) {
+				if (kDown & KEY_L) {
+        			gState = AI_MOVEMENT;
+				}
 				printf("\033[12;11fPress A to start");
 				printf("\033[14;10fPress START to exit");
-				printf("\033[17;15fHighscore");
-				printf("\033[19;18f%d", highscore);
+				// printf("\033[16;5fPress L to start with AI movement");
+				printf("\033[18;15fHighscore");
+				printf("\033[20;18f%d", highscore);
 				printf("\033[0;0fVer. %s", ver);
-				printf("\033[25;2fTap here to for no collision and speed.");
-				printf("\033[28;6fTap here to break the game");
+				if (hideBreakingGame == false) {
+					printf("\033[28;6fTap here to break the game");
+				}
 				if (isDefaultSettings == 0) {
 					printf("\033[6;10fYou broke the game!");
 					printf("\033[7;7fHighscore won't be saved.");
@@ -788,13 +814,15 @@ int main() {
 				printf("\033[6;14fGAME OVER");
 				printf("\033[9;16fScore");
 				printf("\033[11;18f%d", score);
-				printf("\033[25;2fTap here to for no collision and speed.");
-				printf("\033[28;6fTap here to break the game");
+				if (hideBreakingGame == false) {
+					printf("\033[28;6fTap here to break the game");
+				}
 				if (isHighscored == 0) {
 					printf("\033[14;14fHighscore");
 					printf("\033[16;18f%d", highscore);
 				} else
 					printf("\033[15;12fNEW HIGHSCORE!");
+					saveHighScore();
 				printf("\033[19;4fPress Y or tap here to restart");
 				printf("\033[21;10fDeaths %d", deaths);
 				printf("\033[23;10fPress START to exit");
@@ -817,7 +845,6 @@ int main() {
 				printf("\033[17;0fVel. Divider");
 				printf("\033[19;0fGravity");
 				printf("\033[21;0fSpeed");
-				printf("\033[23;0fX Pos.");
 
 				printf("\033[5;18f%d", flappyPixelSize);
 				printf("\033[7;18f%d", pipeWidth);
@@ -828,12 +855,11 @@ int main() {
 				printf("\033[17;18f%d", velDivider);
 				printf("\033[19;18f%d", velChange);
 				printf("\033[21;18f%d", speed);
-				printf("\033[23;18f%d", flappyX);
 			}
 			printed = 1;
 		}
 
-		//printf("\033[29;0f%d %d          ", tPos.px, tPos.py);
+		printf("\033[29;0f%d %d          ", tPos.px, tPos.py);
 
 		gfxFlushBuffers();
 		gfxSwapBuffers();
