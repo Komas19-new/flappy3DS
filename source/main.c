@@ -21,6 +21,61 @@
 #define hideBreakingGame false
 #define ver "Main Branch - Beta 0.1.7"
 
+void loadHighScore() {
+
+	mkdir("/Flappy3DS", 0777);
+
+	FILE *file = fopen("Flappy3DS/highscore.bin", "rb");
+	if (file == NULL) {
+		FILE *file2 fopen("Flappy3DS/highscore.bin", "wb");
+		highscore = 0;
+		fwrite(&highscore, 2, 1, file2);
+		return;
+	}
+	fread(&highscore, 1, 2, file);
+	fclose(file);
+}
+
+void loadDeaths() {
+
+	mkdir("/Flappy3DS", 0777);
+
+	FILE *file = fopen("Flappy3DS/deaths.bin", "rb");
+	if (file == NULL) {
+		FILE *file2 fopen("Flappy3DS/deaths.bin", "wb");
+		deaths = 0;
+		fwrite(&deaths, 2, 1, file2);
+		return;
+	}
+	fread(&deaths, 1, 2, file);
+	fclose(file);
+}
+
+void saveDeaths() {
+
+	mkdir("/Flappy3DS", 0777);
+
+	FILE *file = fopen("Flappy3DS/deaths.bin", "wb");
+	if (file == NULL) {
+		return;
+	}
+	fwrite(&deaths, 2, 1, file);
+	fclose(file);
+}
+
+
+void saveHighScore() {
+
+	mkdir("/Flappy3DS", 0777);
+
+	FILE *file = fopen("Flappy3DS/highscore.bin", "wb");
+	if (file == NULL) {
+		return;
+	}
+	fwrite(&highscore, 2, 1, file);
+	fclose(file);
+}
+
 struct pipe {
 	s16 posX;
 	u8 height;
@@ -136,56 +191,7 @@ void resetGame() {
 	scoreSpot = flappyX + flappyPixelSize / 2 - pipeWidth / 2;
 }
 
-void loadHighScore() {
 
-	mkdir("/Flappy3DS", 0777);
-
-	FILE *file = fopen("flappy3DS/highscore.bin", "rb");
-	if (file == NULL) {
-		highscore = 0;
-		return;
-	}
-	fread(&highscore, 1, 2, file);
-	fclose(file);
-}
-
-void loadDeaths() {
-
-	mkdir("/Flappy3DS", 0777);
-
-	FILE *file = fopen("flappy3DS/deaths.bin", "rb");
-	if (file == NULL) {
-		deaths = 0;
-		return;
-	}
-	fread(&deaths, 1, 2, file);
-	fclose(file);
-}
-
-void saveDeaths() {
-
-	mkdir("/Flappy3DS", 0777);
-
-	FILE *file = fopen("flappy3DS/deaths.bin", "wb");
-	if (file == NULL) {
-		return;
-	}
-	fwrite(&deaths, 2, 1, file);
-	fclose(file);
-}
-
-
-void saveHighScore() {
-
-	mkdir("/Flappy3DS", 0777);
-
-	FILE *file = fopen("flappy3DS/highscore.bin", "wb");
-	if (file == NULL) {
-		return;
-	}
-	fwrite(&highscore, 2, 1, file);
-	fclose(file);
-}
 
 u8 touchControl(u16 x, u8 y, u16 x2, u8 y2) {
 	if (tPos.px >= x && tPos.px <= x2 && tPos.py >= y && tPos.py <= y2)
