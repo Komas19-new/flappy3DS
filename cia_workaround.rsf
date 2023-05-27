@@ -1,9 +1,11 @@
 BasicInfo:
   Title                   : "Flappy3DS"
-  CompanyCode             : "00"
   ProductCode             : "CTR-FLAPPY"
   ContentType             : Application
   Logo                    : Homebrew # Nintendo / Licensed / Distributed / iQue / iQueForSystem
+
+RomFs:
+  RootPath: "../romfs"
 
 TitleInfo:
   UniqueId                : 0x1337
@@ -24,13 +26,13 @@ Option:
   
 AccessControlInfo:
   #UseExtSaveData : true
-  #ExtSaveDataId: 0xff3ff
+  #ExtSaveDataId: 0xff5ff
   #UseExtendedSaveDataAccessControl: true
   #AccessibleSaveDataIds: [0x101, 0x202, 0x303, 0x404, 0x505, 0x606]
 
 SystemControlInfo:
   SaveDataSize: 128KB
-  RemasterVersion: 0
+  RemasterVersion: 1
   StackSize: 0x40000
   
 # DO NOT EDIT BELOW HERE OR PROGRAMS WILL NOT LAUNCH (most likely)
