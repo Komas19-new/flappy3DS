@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
-
+const char* versionNumber = "Beta 0.1.8";
 #ifndef NULL
 #define NULL   ((void *) 0) //to get rid of Eclipse's NULL errors
 #endif
@@ -19,7 +19,37 @@
 #define DEFvelChange 1
 #define DEFspeed 2
 #define hideBreakingGame false
-#define ver "Main Branch - Beta 0.1.7"
+
+s32 i;
+s32 j;
+touchPosition tPos;
+s16 vel;
+u8 altitude;
+u16 score;
+u16 highscore;
+// u8 dieOnGround;
+// u8 defaultDieOnGround;
+u16 deaths;
+s16 oldPos;
+s16 scoreSpot;
+u8 isHighscored;
+u8 floorHeight;
+u16 flappyX;
+u8 pipeCount;
+u16 spaceHorizontal;
+u8 pipeSpace;
+u8 pipeWidth;
+u8 flappyPixelSize;
+s8 power;
+s8 velDivider;
+s8 velChange;
+s8 speed;
+u8 isDefaultSettings;
+u8 printed;
+u8 counter;
+
+// defaultDieOnGround = 0; // 1 = enabled, 0 = disabled
+// dieOnGround = 0; // 1 = enabled, 0 = disabled
 
 void loadHighScore() {
 
@@ -27,9 +57,7 @@ void loadHighScore() {
 
 	FILE *file = fopen("Flappy3DS/highscore.bin", "rb");
 	if (file == NULL) {
-		FILE *file2 fopen("Flappy3DS/highscore.bin", "wb");
 		highscore = 0;
-		fwrite(&highscore, 2, 1, file2);
 		return;
 	}
 	fread(&highscore, 1, 2, file);
@@ -42,9 +70,7 @@ void loadDeaths() {
 
 	FILE *file = fopen("Flappy3DS/deaths.bin", "rb");
 	if (file == NULL) {
-		FILE *file2 fopen("Flappy3DS/deaths.bin", "wb");
 		deaths = 0;
-		fwrite(&deaths, 2, 1, file2);
 		return;
 	}
 	fread(&deaths, 1, 2, file);
@@ -85,31 +111,6 @@ enum gameState {
 	RUNNING, GAMEOVER, MAIN, OPTIONS, COLLISIONOFF, AI_MOVEMENT
 } gState;
 
-s32 i;
-s32 j;
-touchPosition tPos;
-s16 vel;
-u8 altitude;
-u16 score;
-u16 highscore;
-u16 deaths;
-s16 oldPos;
-s16 scoreSpot;
-u8 isHighscored;
-u8 floorHeight;
-u16 flappyX;
-u8 pipeCount;
-u16 spaceHorizontal;
-u8 pipeSpace;
-u8 pipeWidth;
-u8 flappyPixelSize;
-s8 power;
-s8 velDivider;
-s8 velChange;
-s8 speed;
-u8 isDefaultSettings;
-u8 printed;
-u8 counter;
 
 void clrScreen(u8 *fb) {
 	memset(fb, 0, 240 * 400 * 3);
@@ -161,6 +162,7 @@ void resetOptions() {
 	velDivider = DEFvelDivider;
 	velChange = DEFvelChange;
 	speed = DEFspeed;
+	// dieOnGround = defaultDieOnGround;
 
 	isDefaultSettings = 1;
 }
@@ -218,7 +220,7 @@ int main() {
 
 		hidTouchRead(&tPos);
 
-		/***** Game Mechanichs *****/
+		/***** Game Mechanics *****/
 
 		u32 kDown = hidKeysDown();
 		if (kDown & KEY_START)
@@ -475,8 +477,15 @@ int main() {
 			vel -= velChange;
 			//		if (vel <= -18)
 			//			vel = -18;
+
+			if (altitude < floorHeight + flappyPixelSize) {
+				gState = GAMEOVER;
+				printed = 0;
+        	}
+
 			if (kDown & KEY_SELECT) {
 				gState = GAMEOVER;
+				printed = 0;
 				if (score > highscore && isDefaultSettings == 1) {
 					isHighscored = 1;
 					highscore = score;
@@ -697,11 +706,8 @@ int main() {
 					}
 					counter++;
 				} else if (tPos.py <= 196) {
-					if (flappyX < 400) {
-						flappyX++;
-						isDefaultSettings = 0;
-					}
-					counter++;
+					isDefaultSettings = 0;
+					// dieOnGround = !dieOnGround;
 				}
 				printed = 0;
 			}
@@ -803,7 +809,7 @@ int main() {
 				// printf("\033[16;5fPress L to start with AI movement");
 				printf("\033[18;15fHighscore");
 				printf("\033[20;18f%d", highscore);
-				printf("\033[0;0fVer. %s", ver);
+				printf("\033[0;0fVer. %s", versionNumber);
 				if (hideBreakingGame == false) {
 					printf("\033[28;6fTap here to break the game");
 				}
@@ -815,7 +821,7 @@ int main() {
 			} else if (gState == RUNNING) {
 				printf("\033[8;16fScore");
 				printf("\033[10;18f%d", score);
-				printf("\033[0;0fFlappy3DS %s", ver);
+				printf("\033[0;0fFlappy3DS %s", versionNumber);
 			} else if (gState == GAMEOVER) {
 				printf("\033[6;14fGAME OVER");
 				printf("\033[9;16fScore");
@@ -839,7 +845,7 @@ int main() {
 				i = 0;
 				while (i < 10) {
 					printf("\033[%d;16f-", i * 2 + 5);
-					printf("\033[%d;22f+", i * 2 + 5);
+					// printf("\033[%d;22f+", i * 2 + 5);
 					i++;
 				}
 				printf("\033[5;0fFlappy Size");
@@ -851,6 +857,7 @@ int main() {
 				printf("\033[17;0fVel. Divider");
 				printf("\033[19;0fGravity");
 				printf("\033[21;0fSpeed");
+				// printf("\033[23;0fDie on ground");
 
 				printf("\033[5;18f%d", flappyPixelSize);
 				printf("\033[7;18f%d", pipeWidth);
@@ -861,6 +868,7 @@ int main() {
 				printf("\033[17;18f%d", velDivider);
 				printf("\033[19;18f%d", velChange);
 				printf("\033[21;18f%d", speed);
+				// printf("\033[23;18f%s", dieOnGround ? "Enabled" : "Disabled"); // Display current ground collision state
 			}
 			printed = 1;
 		}
