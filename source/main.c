@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
-const char* versionNumber = "Beta 0.1.8";
+const char* versionNumber = "Beta 0.1.9";
 #ifndef NULL
 #define NULL   ((void *) 0) //to get rid of Eclipse's NULL errors
 #endif
@@ -27,8 +27,8 @@ s16 vel;
 u8 altitude;
 u16 score;
 u16 highscore;
-// u8 dieOnGround;
-// u8 defaultDieOnGround;
+int dieOnGround = 1;
+int defaultDieOnGround = 1;
 u16 deaths;
 s16 oldPos;
 s16 scoreSpot;
@@ -48,58 +48,54 @@ u8 isDefaultSettings;
 u8 printed;
 u8 counter;
 
-// defaultDieOnGround = 0; // 1 = enabled, 0 = disabled
-// dieOnGround = 0; // 1 = enabled, 0 = disabled
-
 void loadHighScore() {
+    mkdir("/Flappy3DS", 0777);
+    chdir("/Flappy3DS");  // Change to the directory to ensure correct file paths
 
-	mkdir("/Flappy3DS", 0777);
-
-	FILE *file = fopen("Flappy3DS/highscore.bin", "rb");
-	if (file == NULL) {
-		highscore = 0;
-		return;
-	}
-	fread(&highscore, 1, 2, file);
-	fclose(file);
+    FILE *file = fopen("highscore.bin", "rb");
+    if (file == NULL) {
+        highscore = 0;
+        return;
+    }
+    fread(&highscore, 1, 2, file);
+    fclose(file);
 }
 
 void loadDeaths() {
+    mkdir("/Flappy3DS", 0777);
+    chdir("/Flappy3DS");  // Change to the directory to ensure correct file paths
 
-	mkdir("/Flappy3DS", 0777);
-
-	FILE *file = fopen("Flappy3DS/deaths.bin", "rb");
-	if (file == NULL) {
-		deaths = 0;
-		return;
-	}
-	fread(&deaths, 1, 2, file);
-	fclose(file);
+    FILE *file = fopen("deaths.bin", "rb");
+    if (file == NULL) {
+        deaths = 0;
+        return;
+    }
+    fread(&deaths, 1, 2, file);
+    fclose(file);
 }
 
 void saveDeaths() {
+    mkdir("/Flappy3DS", 0777);
+    chdir("/Flappy3DS");  // Change to the directory to ensure correct file paths
 
-	mkdir("/Flappy3DS", 0777);
-
-	FILE *file = fopen("Flappy3DS/deaths.bin", "wb");
-	if (file == NULL) {
-		return;
-	}
-	fwrite(&deaths, 2, 1, file);
-	fclose(file);
+    FILE *file = fopen("deaths.bin", "wb");
+    if (file == NULL) {
+        return;
+    }
+    fwrite(&deaths, 2, 1, file);
+    fclose(file);
 }
 
-
 void saveHighScore() {
+    mkdir("/Flappy3DS", 0777);
+    chdir("/Flappy3DS");  // Change to the directory to ensure correct file paths
 
-	mkdir("/Flappy3DS", 0777);
-
-	FILE *file = fopen("Flappy3DS/highscore.bin", "wb");
-	if (file == NULL) {
-		return;
-	}
-	fwrite(&highscore, 2, 1, file);
-	fclose(file);
+    FILE *file = fopen("highscore.bin", "wb");
+    if (file == NULL) {
+        return;
+    }
+    fwrite(&highscore, 2, 1, file);
+    fclose(file);
 }
 
 struct pipe {
@@ -162,7 +158,7 @@ void resetOptions() {
 	velDivider = DEFvelDivider;
 	velChange = DEFvelChange;
 	speed = DEFspeed;
-	// dieOnGround = defaultDieOnGround;
+	dieOnGround = defaultDieOnGround;
 
 	isDefaultSettings = 1;
 }
@@ -379,12 +375,6 @@ int main() {
 							isDefaultSettings = 0;
 						}
 						counter++;
-					} else if (tPos.py <= 196) {
-						if (flappyX > 1) {
-							flappyX--;
-							isDefaultSettings = 0;
-						}
-						counter++;
 					}
 					printed = 0;
 				}
@@ -443,12 +433,6 @@ int main() {
 							isDefaultSettings = 0;
 						}
 						counter++;
-					} else if (tPos.py <= 196) {
-						if (flappyX < 400) {
-							flappyX++;
-							isDefaultSettings = 0;
-						}
-						counter++;
 					}
 					printed = 0;
 				}
@@ -479,8 +463,11 @@ int main() {
 			//			vel = -18;
 
 			if (altitude < floorHeight + flappyPixelSize) {
-				gState = GAMEOVER;
-				printed = 0;
+				if (dieOnGround = 1) {
+					gState = GAMEOVER;
+					deaths = deaths + 1;
+					printed = 0;
+				}
         	}
 
 			if (kDown & KEY_SELECT) {
@@ -642,12 +629,13 @@ int main() {
 					}
 					counter++;
 				} else if (tPos.py <= 196) {
-					if (flappyX > 1) {
-						flappyX--;
+					if (counter == 1) {
+						counter = 0;
+						dieOnGround=0;
 						isDefaultSettings = 0;
 					}
-					counter++;
 				}
+				
 				printed = 0;
 			}
 			if (tPos.px >= 168 && tPos.px <= 193) {
@@ -676,8 +664,11 @@ int main() {
 					}
 					counter++;
 				} else if (tPos.py <= 116) {
-					if (counter == 0 && floorHeight<237) {
+					if (counter == 0 && floorHeight<100) {
 						floorHeight++;
+						isDefaultSettings = 0;
+					} else if (floorHeight == 101) {
+						floorHeight = 5;
 						isDefaultSettings = 0;
 					}
 					counter++;
@@ -706,8 +697,11 @@ int main() {
 					}
 					counter++;
 				} else if (tPos.py <= 196) {
-					isDefaultSettings = 0;
-					// dieOnGround = !dieOnGround;
+					if (counter == 0) {
+						counter = 1;
+						dieOnGround=1;
+						isDefaultSettings = 0;
+					}
 				}
 				printed = 0;
 			}
@@ -843,9 +837,9 @@ int main() {
 				printf("\033[2;1fB: Exit with default settings");
 				printf("\033[26;0fMessing with these can\ncause crash/freeze.");
 				i = 0;
-				while (i < 10) {
+				while (i < 9) { // Change 9 to the number of options changeable
 					printf("\033[%d;16f-", i * 2 + 5);
-					// printf("\033[%d;22f+", i * 2 + 5);
+					printf("\033[%d;22f+", i * 2 + 5);
 					i++;
 				}
 				printf("\033[5;0fFlappy Size");
